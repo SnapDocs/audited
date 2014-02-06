@@ -46,6 +46,13 @@ end
 
 if defined?(ActionController) and defined?(ActionController::Base)
   ActionController::Base.class_eval do
-    around_filter Audited::Sweeper.instance
+    around_filter do |controller, &block|
+      Audited::Sweeper.instance.before(controller)
+      begin
+        block.call
+      ensure
+        Audited::Sweeper.instance.after(controller)
+      end
+    end
   end
 end
